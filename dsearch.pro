@@ -1,6 +1,6 @@
 QT += core gui widgets
 
-CONFIG += c++20
+CONFIG += c++2a
 
 INCLUDEPATH += ./include
 MOC_DIR = ./moc
@@ -17,3 +17,4 @@ HEADERS += \
 FORMS += \
     forms/mainwindow.ui
 
+LIBS += -lfmt

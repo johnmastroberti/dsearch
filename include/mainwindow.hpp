@@ -1,5 +1,7 @@
 #pragma once
 #include <QMainWindow>
+#include <vector>
+#include <string>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -12,7 +14,13 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void add_search_prog(std::string prog);
+
+private slots:
+    void on_lineEdit_textChanged(const QString &arg1);
 
 private:
     Ui::MainWindow *ui;
+    std::vector<std::string> search_progs;
+
 };
