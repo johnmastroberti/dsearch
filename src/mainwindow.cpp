@@ -1,59 +1,42 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
-#include <fmt/core.h>
-#include <string>
-#include <sstream>
-#include <utility>
 #include <algorithm>
 #include <cstdio>
+#include <fmt/core.h>
 #include <iostream>
+#include <sstream>
+#include <string>
+#include <utility>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
-{
-    ui->setupUi(this);
-    ui->label->hide();
-    ui->label->setText("");
+    : QMainWindow(parent), ui(new Ui::MainWindow), watcher(this) {
+  ui->setupUi(this);
+  connect(&watcher, &QFutureWatcher<std::string>::resultReadyAt, this,
+          &MainWindow::display_results);
 }
 
-MainWindow::~MainWindow()
-{
-    delete ui;
+MainWindow::~MainWindow() {
+  delete ui;
+  for (auto p : search_engines)
+    delete p;
 }
 
-void MainWindow::add_search_prog(std::string prog) {
-  search_progs.emplace_back(std::move(prog));
+void MainWindow::add_search_prog(std::string prog) { // TODO
+  search_engines.emplace_back(new SearchProg(prog));
 }
 
-void MainWindow::on_lineEdit_textChanged(const QString & s)
-{
-  std::string results;
-  for (const auto& prog : search_progs) {
-    auto cmd = fmt::format("{} '{}'", prog, s.toStdString());
-    std::cerr << cmd << '\n';
-    FILE *process = popen(cmd.c_str(), "r");
-    std::stringstream process_output;
-    char buf[1024];
-    while( fgets(buf, sizeof(buf), process) )
-      process_output << buf;
+void MainWindow::on_lineEdit_textChanged(const QString &s) {
+  // Process results in parallel with QtConcurrent, QFuture, and QFutureWatcher
 
-    auto ret = pclose(process);
-    std::cerr << ret << '\n';
-    if (ret) continue;
-    results += fmt::format("{}\n", prog);
-    results += process_output.str();
-    std::cerr << results << '\n';
-  }
+  const std::function<std::string(SearchEngine *)> do_search =
+      [s](const SearchEngine *engine) {
+        return engine->search(s.toStdString());
+      };
 
-
-  if (results.size()) {
-    ui->label->setText(QString::fromStdString(results));
-    ui->label->show();
-  } else {
-    ui->label->setText("");
-    ui->label->hide();
-  }
-
+  watcher.cancel();
+  watcher.setFuture(QtConcurrent::mapped(search_engines, do_search));
 }
 
+void MainWindow::display_results(int ix) {
+  std::cerr << watcher.resultAt(ix) << '\n';
+}

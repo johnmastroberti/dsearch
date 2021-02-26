@@ -1,4 +1,4 @@
-QT += core gui widgets
+QT += core gui widgets concurrent
 
 CONFIG += c++2a
 
@@ -9,10 +9,13 @@ UI_DIR = ./ui
 
 SOURCES += \
     src/main.cpp \
-    src/mainwindow.cpp
+    src/mainwindow.cpp \
+    src/searchengine.cpp \
+    src/test.cpp
 
 HEADERS += \
-    include/mainwindow.hpp
+    include/mainwindow.hpp \
+    include/searchengine.hpp
 
 FORMS += \
     forms/mainwindow.ui
