@@ -10,8 +10,7 @@ UI_DIR = ./ui
 SOURCES += \
     src/main.cpp \
     src/mainwindow.cpp \
-    src/searchengine.cpp \
-    src/test.cpp
+    src/searchengine.cpp
 
 HEADERS += \
     include/mainwindow.hpp \
