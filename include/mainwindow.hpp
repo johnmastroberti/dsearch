@@ -2,7 +2,7 @@
 #include <QMainWindow>
 #include <QtConcurrent>
 #include <memory>
-#include <string>
+#include <mutex>
 #include <vector>
 
 #include "searchengine.hpp"
@@ -19,7 +19,7 @@ class MainWindow : public QMainWindow {
 public:
   MainWindow(QWidget *parent = nullptr);
   ~MainWindow();
-  void add_search_prog(std::string prog);
+  void add_search_prog(const char *prog);
 
 public slots:
   void on_lineEdit_textChanged(const QString &arg1);
@@ -28,5 +28,10 @@ public slots:
 private:
   Ui::MainWindow *ui;
   std::vector<SearchEngine *> search_engines;
-  QFutureWatcher<std::string> watcher;
+  QFutureWatcher<QString> watcher;
+
+  QStringListModel model;
+  QStringList search_results;
+  mutable std::mutex model_mtx;
+  bool stale_results;
 };

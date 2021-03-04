@@ -10,33 +10,26 @@ SearchEngine::SearchEngine() {}
 
 SearchEngine::~SearchEngine() {}
 
-SearchProg::SearchProg(std::string prog_name) : m_prog(prog_name) {}
+SearchProg::SearchProg(QString prog_name) : m_prog(prog_name) {}
 
-std::string SearchProg::search(std::string querry) const {
+QString SearchProg::search(QString querry) const {
   QProcess process;
-  process.setProgram(QString::fromStdString(m_prog));
-  std::cerr << "starting " << m_prog << '\n';
+  process.setProgram(m_prog);
+  std::cerr << "starting " << m_prog.toStdString() << '\n';
   process.start();
   if (!process.waitForStarted())
-    return std::string("failed wait for started on program ") + m_prog;
+    return QString("failed wait for started on program ") + m_prog;
 
-  process.write(querry.c_str());
+  auto querry_array = querry.toLatin1();
+  process.write(querry_array.data());
   process.closeWriteChannel();
   if (!process.waitForFinished())
-    return std::string("failed wait for finished on program ") + m_prog;
+    return QString("failed wait for finished on program ") + m_prog;
 
-  auto output = process.readAllStandardOutput();
-  return output.toStdString();
+  auto output = QString(process.readAllStandardOutput());
+  output.replace('\n', ' ');
+  if (output.length() == 0)
+    return output;
+  else
+    return m_prog + "\n" + output.trimmed();
 }
-//  auto cmd = fmt::format("{} '{}'", m_prog, querry);
-//  std::cerr << cmd << '\n';
-//  FILE *process = popen(cmd.c_str(), "r");
-//  std::stringstream process_output;
-//  char buf[1024];
-//  while (fgets(buf, sizeof(buf), process))
-//    process_output << buf;
-
-//  if (pclose(process))
-//    return "Search failed";
-//  else
-//    return fmt::format("{}\n{}", m_prog, process_output.str());

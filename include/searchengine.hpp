@@ -1,5 +1,5 @@
 #pragma once
-#include <string>
+#include <QString>
 
 class SearchEngine {
 public:
@@ -7,15 +7,15 @@ public:
 
   virtual ~SearchEngine();
 
-  virtual std::string search(std::string) const = 0;
+  virtual QString search(QString) const = 0;
 };
 
 class SearchProg : public SearchEngine {
 private:
-  std::string m_prog;
+  QString m_prog;
 
 public:
-  SearchProg(std::string prog_name);
+  SearchProg(QString prog_name);
 
-  std::string search(std::string) const;
+  QString search(QString) const;
 };
